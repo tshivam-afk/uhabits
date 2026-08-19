@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        "classpath"(group = "com.opencsv", name = "opencsv", version = "5.10.0")
+        "classpath"(group = "com.opencsv", name = "opencsv", version = "5.12.0")
     }
 }
 

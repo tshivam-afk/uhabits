@@ -17,6 +17,7 @@
 ### Changed
 
 - Refresh the habit screens with rounded cards, softer navigation bars and activity transitions
+- Pin OpenCSV to 5.12.0 so CI can resolve the translators script classpath
 - Add a faster recent-form score alongside the classic long-term score, without changing existing score history
 - Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality, #2261)
 - Show a toast message after archiving or unarchiving habits (@iSoron, 54275020)
