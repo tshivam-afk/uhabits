@@ -1,16 +1,10 @@
 name: Build and Release
 
 on:
-  # Do not list feature/arena branches here. Those already run via pull_request
-  # when a PR is open; listing them under push starts a second identical job.
-  push:
-    branches: [dev, main, master]
-    tags: ["v*", "[0-9]*"]
-  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: android-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: android-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -42,8 +36,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: ${{ github.event_name == 'pull_request' }}
 
       - name: Read app version
         id: version
@@ -102,16 +94,15 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub Release with APK
-        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'ci-latest' }}
-          name: ${{ github.ref_type == 'tag' && format('Loop {0}', github.ref_name) || format('CI latest ({0})', steps.version.outputs.name) }}
+          tag_name: ci-latest
+          name: CI latest (${{ steps.version.outputs.name }})
           files: ${{ steps.apk.outputs.file }}
           fail_on_unmatched_files: true
-          generate_release_notes: ${{ github.ref_type == 'tag' }}
-          prerelease: ${{ github.ref_type != 'tag' }}
-          make_latest: ${{ github.ref_type == 'tag' }}
+          generate_release_notes: false
+          prerelease: true
+          make_latest: false
           body: |
             Signed release APK built by GitHub Actions.
 

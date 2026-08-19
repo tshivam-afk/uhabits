@@ -68,7 +68,7 @@ android {
             val store = if (envStore != null) file(envStore) else file("ci-release.jks")
 
             if (envStore == null && !store.exists()) {
-                val keytool = java.io.File(System.getProperty("java.home"), "bin/keytool")
+                val keytool = file("${System.getProperty("java.home")}/bin/keytool")
                 val result = ProcessBuilder(
                     keytool.absolutePath,
                     "-genkeypair",
