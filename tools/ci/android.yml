@@ -1,10 +1,13 @@
 name: Build and Release
 
 on:
+  # PR sync runs the build without merging to dev.
+  # No push trigger — that was what started two jobs.
+  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: android-${{ github.workflow }}-${{ github.ref }}
+  group: android-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -94,6 +97,7 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub Release with APK
+        if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ci-latest
