@@ -218,6 +218,18 @@ open class Preferences(private val storage: Storage) {
             for (l in listeners) l.onQuestionMarksChanged()
         }
 
+    open var isPrivacyLockEnabled: Boolean
+        get() = storage.getBoolean("pref_privacy_lock", false)
+        set(value) {
+            storage.putBoolean("pref_privacy_lock", value)
+        }
+
+    open var isLockWhenMinimizedEnabled: Boolean
+        get() = storage.getBoolean("pref_lock_when_minimized", true)
+        set(value) {
+            storage.putBoolean("pref_lock_when_minimized", value)
+        }
+
     /**
      * @return An integer representing the first day of the week. Sunday
      * corresponds to 1, Monday to 2, and so on, until Saturday, which is

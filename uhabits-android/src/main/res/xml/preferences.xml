@@ -91,6 +91,27 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+            android:key="privacyCategory"
+            android:title="@string/privacy">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="pref_privacy_lock"
+            android:summary="@string/pref_privacy_lock_description"
+            android:title="@string/pref_privacy_lock_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:dependency="pref_privacy_lock"
+            android:key="pref_lock_when_minimized"
+            android:summary="@string/pref_lock_when_minimized_description"
+            android:title="@string/pref_lock_when_minimized_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
             android:key="reminderCategory"
             android:title="@string/reminder">
 

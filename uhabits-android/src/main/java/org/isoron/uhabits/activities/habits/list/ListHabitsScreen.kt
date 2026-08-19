@@ -67,6 +67,7 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBeh
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import org.isoron.uhabits.intents.IntentFactory
+import org.isoron.uhabits.security.PrivacyLock
 import org.isoron.uhabits.tasks.ExportDBTaskFactory
 import org.isoron.uhabits.tasks.ImportDataTask
 import org.isoron.uhabits.tasks.ImportDataTaskFactory
@@ -194,6 +195,7 @@ class ListHabitsScreen(
     }
 
     fun showImportScreen() {
+        org.isoron.uhabits.security.PrivacyLock.ignoreNextBackground()
         val intent = intentFactory.openDocument()
         activity.startActivityForResult(intent, REQUEST_OPEN_DOCUMENT)
     }

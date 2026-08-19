@@ -184,4 +184,14 @@ class PreferencesTest : BaseUnitTest() {
         prefs.isMidnightDelayEnabled = true
         assertTrue(prefs.isMidnightDelayEnabled)
     }
+
+    @Test
+    fun testPrivacyLock() {
+        assertFalse(prefs.isPrivacyLockEnabled)
+        assertTrue(prefs.isLockWhenMinimizedEnabled)
+        prefs.isPrivacyLockEnabled = true
+        prefs.isLockWhenMinimizedEnabled = false
+        assertTrue(prefs.isPrivacyLockEnabled)
+        assertFalse(prefs.isLockWhenMinimizedEnabled)
+    }
 }

@@ -28,6 +28,7 @@ import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.inject.create
+import org.isoron.uhabits.security.PrivacyLock
 import org.isoron.uhabits.utils.DatabaseUtils
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.io.File
@@ -88,6 +89,10 @@ class HabitsApplication : Application() {
         taskRunner.execute {
             reminderScheduler.scheduleAll()
             widgetUpdater.updateWidgets()
+        }
+
+        if (!isTestMode()) {
+            PrivacyLock.register(this)
         }
     }
 

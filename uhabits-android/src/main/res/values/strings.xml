@@ -238,4 +238,14 @@
     <string name="pref_midnight_delay_description">Wait until 3:00 AM to show a new day. Useful if you typically go to sleep after midnight. Requires app restart.</string>
     <string name="pref_animations_title">Disable animations</string>
     <string name="pref_animations_description">Disable confetti animation after adding a checkmark.</string>
+    <string name="privacy">Privacy</string>
+    <string name="pref_privacy_lock_title">Privacy lock</string>
+    <string name="pref_privacy_lock_description">Require your fingerprint, face or device PIN before opening the app.</string>
+    <string name="pref_lock_when_minimized_title">Lock as soon as the screen is minimized</string>
+    <string name="pref_lock_when_minimized_description">When off, Loop stays unlocked while it remains in Recents. Closing it from Recents always requires unlock on the next launch.</string>
+    <string name="privacy_lock_title">Loop is locked</string>
+    <string name="privacy_lock_subtitle">Authenticate to view your habits</string>
+    <string name="privacy_lock_message">Unlock with biometrics or your device PIN to continue.</string>
+    <string name="privacy_lock_unlock">Unlock</string>
+    <string name="privacy_lock_need_screen_lock">Set a screen lock in Android settings before enabling privacy lock.</string>
 </resources>

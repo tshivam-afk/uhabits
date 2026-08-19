@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add a privacy lock that uses biometrics or the device PIN, with an option to lock as soon as the app is minimized
 - Add GitHub Actions workflow that runs unit tests, signs a release APK with a temporary key, and publishes the APK (not a zip) as a release asset
 - Implement Tasker/Locale `ACTION_SET_NUMERICAL_VALUE` handling for measurable habits
 - Add habit search that filters by name, question and notes (@I-Dont-Remember, #2338)

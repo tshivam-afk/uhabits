@@ -23,6 +23,8 @@ rules = "1.6.1"
 sqliteJdbc = "3.49.1.0"
 uiautomator = "2.3.0"
 documentfile = "1.1.0"
+biometric = "1.1.0"
+lifecycleProcess = "2.8.7"
 
 [libraries]
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
@@ -50,6 +52,8 @@ rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
+biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 agp = { id = "com.android.application", version.ref = "agp" }

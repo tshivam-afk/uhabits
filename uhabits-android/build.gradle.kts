@@ -142,6 +142,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.documentfile)
     implementation(libs.konfetti.xml)
+    implementation(libs.biometric)
+    implementation(libs.lifecycle.process)
     implementation(project(":uhabits-core"))
     ksp(libs.kotlin.inject.compiler)
 

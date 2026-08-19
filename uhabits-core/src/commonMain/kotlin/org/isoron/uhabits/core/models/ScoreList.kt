@@ -92,9 +92,9 @@ class ScoreList {
         for (i in values.indices) {
             val offset = values.size - i - 1
             if (isNumerical) {
-                rollingSum += max(0, values[offset])
+                rollingSum += numericalContribution(values[offset])
                 if (offset + denominator < values.size) {
-                    rollingSum -= max(0, values[offset + denominator])
+                    rollingSum -= numericalContribution(values[offset + denominator])
                 }
 
                 val normalizedRollingSum = rollingSum / 1000
@@ -134,6 +134,16 @@ class ScoreList {
             }
             val date = from.plus(i)
             map[date] = Score(date, previousValue)
+        }
+    }
+
+    companion object {
+        /**
+         * SKIP (3) and UNKNOWN (-1) must not enter the rolling window. Otherwise a
+         * skip would count as 0.003 toward a numerical target.
+         */
+        internal fun numericalContribution(value: Int): Int {
+            return if (value == Entry.SKIP || value == Entry.UNKNOWN) 0 else max(0, value)
         }
     }
 }
