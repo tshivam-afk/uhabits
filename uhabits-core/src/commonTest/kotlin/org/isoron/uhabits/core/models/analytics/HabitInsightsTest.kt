@@ -139,7 +139,8 @@ class HabitInsightsTest : BaseUnitTest() {
         val insights = HabitInsights.compute(habit)
         assertEquals(1, insights.rate7.successes)
         assertEquals(2, insights.rate7.eligible)
-        assertEquals(3, insights.currentStreak)
+        // 500 is below the target, so only today + the skip count as a live streak
+        assertEquals(2, insights.currentStreak)
     }
 
     @Test
