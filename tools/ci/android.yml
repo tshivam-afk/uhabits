@@ -1,14 +1,16 @@
 name: Build and Release
 
 on:
+  # Do not list feature/arena branches here. Those already run via pull_request
+  # when a PR is open; listing them under push starts a second identical job.
   push:
-    branches: [dev, main, master, "arena/**"]
+    branches: [dev, main, master]
     tags: ["v*", "[0-9]*"]
   pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: android-${{ github.workflow }}-${{ github.ref }}
+  group: android-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
