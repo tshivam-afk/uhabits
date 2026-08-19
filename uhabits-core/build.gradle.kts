@@ -57,12 +57,8 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
-                implementation(libs.guava)
                 implementation(libs.kotlinx.coroutines.core.jvm)
                 implementation(libs.annotation)
-                implementation(libs.jsr305)
-                implementation(libs.opencsv)
-                implementation(libs.commons.codec)
             }
         }
 
@@ -72,7 +68,6 @@ kotlin {
                 implementation(kotlin("test-junit"))
                 implementation(libs.sqlite.jdbc)
                 implementation(libs.hamcrest)
-                implementation(libs.commons.io)
                 implementation(libs.junit.jupiter)
             }
         }

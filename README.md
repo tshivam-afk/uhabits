@@ -1,7 +1,10 @@
 <h1 align="center">Loop Habit Tracker</h1>
 <p align="center">
-  <a href="https://github.com/iSoron/uhabits/releases/latest">
-    <img alt="release" src="https://img.shields.io/github/v/release/iSoron/uhabits" />
+  <a href="https://github.com/tshivam-afk/uhabits/actions/workflows/android.yml">
+    <img alt="Build and Release" src="https://github.com/tshivam-afk/uhabits/actions/workflows/android.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/tshivam-afk/uhabits/releases/latest">
+    <img alt="release" src="https://img.shields.io/github/v/release/tshivam-afk/uhabits" />
   </a>
   <a href="https://github.com/iSoron/uhabits/discussions">
     <img alt="GitHub" src="https://img.shields.io/badge/GitHub-Discussions-%23fc4ebc" />
@@ -113,7 +116,7 @@ contribute, even if you are not a software developer.
 [screen6th]: screenshots/6.thumb.png
 [poedit]: https://translate.loophabits.org
 [playstore]: https://play.google.com/store/apps/details?id=org.isoron.uhabits
-[releases]: https://github.com/iSoron/uhabits/releases
+[releases]: https://github.com/tshivam-afk/uhabits/releases
 [fdroid]: https://f-droid.org/app/org.isoron.uhabits
 [build]: https://github.com/iSoron/uhabits/blob/dev/docs/BUILD.md
 [beta]: https://play.google.com/apps/testing/org.isoron.uhabits

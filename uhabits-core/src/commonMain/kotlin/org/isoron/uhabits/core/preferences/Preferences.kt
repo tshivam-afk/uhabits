@@ -62,7 +62,7 @@ open class Preferences(private val storage: Storage) {
                 HabitList.Order.valueOf(name)
             } catch (e: IllegalArgumentException) {
                 defaultSecondaryOrder = HabitList.Order.BY_NAME_ASC
-                HabitList.Order.BY_POSITION
+                HabitList.Order.BY_NAME_ASC
             }
         }
         set(order) {
@@ -201,9 +201,9 @@ open class Preferences(private val storage: Storage) {
             storage.putInt("last_version", version)
         }
     open var widgetOpacity: Int
-        get() = storage.getString("pref_widget_opacity", "255").toInt()
+        get() = storage.getString("pref_widget_opacity", "255").toIntOrNull()?.coerceIn(0, 255) ?: 255
         set(value) {
-            storage.putString("pref_widget_opacity", value.toString())
+            storage.putString("pref_widget_opacity", value.coerceIn(0, 255).toString())
         }
     open var isSkipEnabled: Boolean
         get() = storage.getBoolean("pref_skip_enabled", false)
@@ -228,11 +228,11 @@ open class Preferences(private val storage: Storage) {
     open val firstWeekdayInt: Int
         get() {
             val weekday = storage.getString("pref_first_weekday", "")
-            return if (weekday.isEmpty()) getFirstWeekdayNumberAccordingToLocale() else weekday.toInt()
+            return weekday.toIntOrNull() ?: getFirstWeekdayNumberAccordingToLocale()
         }
     open val firstWeekday: DayOfWeek
         get() {
-            var weekday = storage.getString("pref_first_weekday", "-1").toInt()
+            var weekday = storage.getString("pref_first_weekday", "-1").toIntOrNull() ?: -1
             if (weekday < 0) weekday = getFirstWeekdayNumberAccordingToLocale()
             return when (weekday) {
                 1 -> DayOfWeek.SUNDAY

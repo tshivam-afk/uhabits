@@ -38,7 +38,13 @@ class AndroidImage(private val bmp: Bitmap) : Image {
     }
 
     override suspend fun export(path: String) {
-        TODO("Not yet implemented")
+        val file = java.io.File(path)
+        file.parentFile?.mkdirs()
+        java.io.FileOutputStream(file).use { out ->
+            if (!bmp.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                error("Failed to export image to $path")
+            }
+        }
     }
 }
 

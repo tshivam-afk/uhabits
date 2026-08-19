@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add GitHub Actions workflow that runs unit tests, signs a release APK with a temporary key, and publishes the APK (not a zip) as a release asset
+- Implement Tasker/Locale `ACTION_SET_NUMERICAL_VALUE` handling for measurable habits
 - Add habit search that filters by name, question and notes (@I-Dont-Remember, #2338)
 - Add archive and unarchive actions on the habit statistics page (@KyleSCraig, #2194)
 - Add option to select a public folder for automatic backups via SAF (@MihanEntalpo, #2209)
@@ -16,6 +18,12 @@
 
 ### Fixed
 
+- Fix midnight widget updates by comparing intent actions by value instead of identity
+- Restore numerical target type after rotation on the edit habit screen
+- Reject invalid numerical targets instead of crashing on save
+- Clamp and parse widget opacity and first-weekday settings safely
+- Return the stored fallback when the secondary sort order preference is invalid
+- Stop exporting the edit-habit screen and requiring a fake WidgetReceiver permission
 - Fix streak chart date format to be more compact (@iSoron, 07d87e4a)
 - Support content URIs when sharing backup files (@iSoron, 4383b3ed)
 - Fix frequency chart rendering random data in production (@TangilHossain, #2242)

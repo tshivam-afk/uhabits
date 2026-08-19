@@ -27,3 +27,5 @@ crowdin.yml
 local
 tmp/
 secret/
+ci-release.jks
+ci-release.keystore

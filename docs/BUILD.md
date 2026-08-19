@@ -85,4 +85,21 @@ The repository will be downloaded to the directory `uhabits`.
 
 If the compilation is successful, a debug APK will be generated somewhere inside the folder `uhabits-android/build/`. Currently, the full path is `./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk`, but it may change in the future.
 
+To build a **signed release APK** without production secrets, run:
+
+```bash
+./gradlew :uhabits-android:assembleRelease
+```
+
+A temporary keystore is generated at `uhabits-android/ci-release.jks` when `LOOP_KEY_*` environment variables are not set. The signed APK is written to `uhabits-android/build/outputs/apk/release/uhabits-android-release.apk`.
+
+GitHub Actions runs the same release build on every push and attaches `Loop-<version>.apk` (not a zip) to the workflow artifacts and to a GitHub Release.
+
+The workflow definition is `tools/ci/android.yml`. Copy it into `.github/workflows/android.yml` (required path for Actions) if that file is not already present:
+
+```bash
+mkdir -p .github/workflows
+cp tools/ci/android.yml .github/workflows/android.yml
+```
+
 The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.

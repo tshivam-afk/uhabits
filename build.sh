@@ -416,19 +416,9 @@ END
 clean() {
     log_info "Cleaning build folders..."
     rm -rf uhabits-android/.gradle
-    rm -rf uhabits-android/android-pickers/build
     rm -rf uhabits-android/build
-    rm -rf uhabits-android/uhabits-android/build
-    rm -rf uhabits-core-legacy/.gradle
-    rm -rf uhabits-core-legacy/build
     rm -rf uhabits-core/.gradle
     rm -rf uhabits-core/build
-    rm -rf uhabits-server/.gradle
-    rm -rf uhabits-server/build
-    rm -rf uhabits-web/build
-    rm -rf uhabits-web/node_modules
-    rm -rf uhabits-web/node_modules/core-js/build
-    rm -rf uhabits-web/node_modules/upath/build
     rm -rf .gradle
 }
 

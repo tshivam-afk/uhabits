@@ -36,7 +36,7 @@
 
         <activity
             android:name=".activities.habits.edit.EditHabitActivity"
-            android:exported="true">
+            android:exported="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.habits.list.ListHabitsActivity" />
@@ -218,9 +218,9 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receivers.WidgetReceiver"
-            android:exported="true"
-            android:permission="false">
+        <receiver
+            android:name=".receivers.WidgetReceiver"
+            android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="org.isoron.uhabits.ACTION_SET_NUMERICAL_VALUE" />

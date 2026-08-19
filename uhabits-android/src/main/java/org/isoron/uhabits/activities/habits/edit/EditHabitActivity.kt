@@ -41,7 +41,6 @@ import org.isoron.uhabits.activities.AndroidThemeSwitcher
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.common.dialogs.FrequencyPickerDialog
 import org.isoron.uhabits.activities.common.dialogs.WeekdayPickerDialog
-import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateHabitCommand
 import org.isoron.uhabits.core.commands.EditHabitCommand
 import org.isoron.uhabits.core.models.Frequency
@@ -73,11 +72,9 @@ class EditHabitActivity : AppCompatActivity() {
 
     private lateinit var themeSwitcher: AndroidThemeSwitcher
     private lateinit var binding: ActivityEditHabitBinding
-    private lateinit var commandRunner: CommandRunner
 
     var habitId = -1L
     lateinit var habitType: HabitType
-    var unit = ""
     var color = PaletteColor(11)
     var androidColor = 0
     var freqNum = 1
@@ -132,6 +129,9 @@ class EditHabitActivity : AppCompatActivity() {
             reminderHour = state.getInt("reminderHour")
             reminderMin = state.getInt("reminderMin")
             reminderDays = WeekdayList(state.getInt("reminderDays"))
+            targetType = NumericalHabitType.fromInt(
+                state.getInt("targetType", NumericalHabitType.AT_LEAST.value)
+            )
         }
 
         updateColors()
@@ -282,7 +282,7 @@ class EditHabitActivity : AppCompatActivity() {
 
         habit.frequency = Frequency(freqNum, freqDen)
         if (habitType == HabitType.NUMERICAL) {
-            habit.targetValue = binding.targetInput.text.toString().toDouble()
+            habit.targetValue = parseTargetValue() ?: return
             habit.targetType = targetType
             habit.unit = binding.unitInput.text.trim().toString()
         }
@@ -315,9 +315,20 @@ class EditHabitActivity : AppCompatActivity() {
             if (binding.targetInput.text.isEmpty()) {
                 binding.targetInput.error = getString(R.string.validation_cannot_be_blank)
                 isValid = false
+            } else if (parseTargetValue() == null) {
+                binding.targetInput.error = getString(R.string.validation_cannot_be_blank)
+                isValid = false
             }
         }
         return isValid
+    }
+
+    private fun parseTargetValue(): Double? {
+        return binding.targetInput.text.toString()
+            .trim()
+            .replace(',', '.')
+            .toDoubleOrNull()
+            ?.takeIf { it >= 0.0 }
     }
 
     private fun populateReminder() {
@@ -363,7 +374,7 @@ class EditHabitActivity : AppCompatActivity() {
 
     private fun getFormattedValidationError(@StringRes resId: Int): Spanned {
         val html = "<font color=#FFFFFF>${getString(resId)}</font>"
-        return Html.fromHtml(html)
+        return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
     }
 
     override fun onSaveInstanceState(state: Bundle) {
@@ -378,6 +389,7 @@ class EditHabitActivity : AppCompatActivity() {
             putInt("reminderHour", reminderHour)
             putInt("reminderMin", reminderMin)
             putInt("reminderDays", reminderDays.toInteger())
+            putInt("targetType", targetType.value)
         }
     }
 }

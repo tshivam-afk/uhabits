@@ -16,7 +16,6 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.databinding.CheckmarkPopupBinding
 import org.isoron.uhabits.utils.InterfaceUtils
-import org.isoron.uhabits.utils.getCenter
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.sres
 import java.text.DecimalFormat
@@ -135,7 +134,6 @@ class NumberDialog : AppCompatDialogFragment() {
             // NOP
         }
         val notes = view.notes.text.toString().trim()
-        val location = view.saveBtn.getCenter()
         onToggle(value, notes)
         requireDialog().dismiss()
     }

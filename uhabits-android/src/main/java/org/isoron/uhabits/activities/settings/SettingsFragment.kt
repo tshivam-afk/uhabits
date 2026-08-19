@@ -107,7 +107,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val sr = StyledResources(context!!)
+        val sr = StyledResources(requireContext())
         view.setBackgroundColor(sr.getColor(R.attr.contrast0))
         super.onViewCreated(view, savedInstanceState)
     }
@@ -161,17 +161,16 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         sharedPrefs = preferenceManager.sharedPreferences
         sharedPrefs!!.registerOnSharedPreferenceChangeListener(this)
         if (!prefs.isDeveloper) {
-            val devCategory = findPreference("devCategory") as PreferenceCategory
-            devCategory.isVisible = false
+            findPreference<PreferenceCategory>("devCategory")?.isVisible = false
         }
         updateWeekdayPreference()
         updatePublicBackupFolderSummary()
 
-        findPreference("reminderSound").isVisible = false
+        findPreference<Preference>("reminderSound")?.isVisible = false
     }
 
     private fun updateWeekdayPreference() {
-        val weekdayPref = findPreference("pref_first_weekday") as ListPreference
+        val weekdayPref = findPreference<ListPreference>("pref_first_weekday") ?: return
         val currentFirstWeekday = prefs.firstWeekday.daysSinceSunday + 1
         val dayNames = JavaLocalDateFormatter(Locale.getDefault()).longWeekdayNames(DayOfWeek.SATURDAY)
         val dayValues = arrayOf("7", "1", "2", "3", "4", "5", "6")
@@ -194,7 +193,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     private fun setResultOnPreferenceClick(key: String, result: Int) {
-        val pref = findPreference(key)
+        val pref = findPreference<Preference>(key) ?: return
         pref.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 requireActivity().setResult(result)
@@ -226,12 +225,12 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
 
     private fun updateRingtoneDescription() {
         val ringtoneName = ringtoneManager!!.getName() ?: return
-        val ringtonePreference = findPreference("reminderSound")
+        val ringtonePreference = findPreference<Preference>("reminderSound") ?: return
         ringtonePreference.summary = ringtoneName
     }
 
     private fun updatePublicBackupFolderSummary() {
-        val pref = findPreference("publicBackupFolder")
+        val pref = findPreference<Preference>("publicBackupFolder") ?: return
         val uriString = sharedPrefs?.getString("publicBackupFolder", null)
         if (uriString == null) {
             pref.summary = getString(R.string.no_public_backup_folder_selected)

@@ -30,8 +30,6 @@ import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.checkSelfPermission
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
 import org.isoron.uhabits.HabitsApplication
@@ -59,7 +57,6 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
     lateinit var screen: ListHabitsScreen
     lateinit var prefs: Preferences
     lateinit var midnightTimer: MidnightTimer
-    private val scope = CoroutineScope(Dispatchers.Main)
 
     private var permissionAlreadyRequested = false
     private val permissionLauncher =
@@ -128,7 +125,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
                     // nothing. This check is necessary to avoid an infinite onResume loop in case
                     // the user denies the permission.
                     if (!permissionAlreadyRequested) {
-                        Log.i("ListHabitsActivity", "Requestion permission: POST_NOTIFICATIONS")
+                        Log.i("ListHabitsActivity", "Requesting permission: POST_NOTIFICATIONS")
                         permissionLauncher.launch(POST_NOTIFICATIONS)
                         permissionAlreadyRequested = true
                     }
@@ -185,6 +182,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         intent = null
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
