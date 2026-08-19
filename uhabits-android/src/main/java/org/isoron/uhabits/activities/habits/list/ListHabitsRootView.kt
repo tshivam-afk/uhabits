@@ -34,14 +34,18 @@ import org.isoron.uhabits.activities.habits.list.views.HabitCardListView
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListViewFactory
 import org.isoron.uhabits.activities.habits.list.views.HeaderView
 import org.isoron.uhabits.activities.habits.list.views.HintView
+import org.isoron.uhabits.activities.habits.list.views.InsightsBarView
+import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.PaletteColor
+import org.isoron.uhabits.core.models.analytics.PortfolioInsights
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.screens.habits.list.HintListFactory
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
+import org.isoron.uhabits.intents.IntentFactory
 import org.isoron.uhabits.utils.addAtBottom
 import org.isoron.uhabits.utils.addAtTop
 import org.isoron.uhabits.utils.addBelow
@@ -65,6 +69,8 @@ class ListHabitsRootView(
     midnightTimer: MidnightTimer,
     runner: TaskRunner,
     private val listAdapter: HabitCardListAdapter,
+    private val habitList: HabitList,
+    private val intentFactory: IntentFactory,
     habitCardListViewFactory: HabitCardListViewFactory
 ) : FrameLayout(context), ModelObservable.Listener {
 
@@ -77,6 +83,7 @@ class ListHabitsRootView(
     val progressBar = TaskProgressBar(context, runner)
     val hintView: HintView
     val header = HeaderView(context, preferences, midnightTimer)
+    val insightsBar = InsightsBarView(context)
 
     init {
         val hints = resources.getStringArray(R.array.hints)
@@ -88,9 +95,10 @@ class ListHabitsRootView(
             addAtTop(konfettiView)
             addAtTop(tbar)
             addBelow(header, tbar)
-            addBelow(listView, header, height = MATCH_PARENT)
-            addBelow(llEmpty, header, height = MATCH_PARENT)
-            addBelow(progressBar, header) {
+            addBelow(insightsBar, header)
+            addBelow(listView, insightsBar, height = MATCH_PARENT)
+            addBelow(llEmpty, insightsBar, height = MATCH_PARENT)
+            addBelow(progressBar, insightsBar) {
                 it.topMargin = dp(-6.0f).toInt()
             }
             addAtBottom(hintView)
@@ -104,10 +112,14 @@ class ListHabitsRootView(
         )
         addView(rootView, MATCH_PARENT, MATCH_PARENT)
         listAdapter.setListView(listView)
+        insightsBar.setOnClickListener {
+            context.startActivity(intentFactory.startInsightsActivity(context))
+        }
     }
 
     override fun onModelChange() {
         updateEmptyView()
+        insightsBar.bind(PortfolioInsights.compute(habitList))
     }
 
     private fun setupControllers() {
@@ -124,6 +136,7 @@ class ListHabitsRootView(
         super.onAttachedToWindow()
         setupControllers()
         listAdapter.observable.addListener(this)
+        onModelChange()
     }
 
     override fun onDetachedFromWindow() {

@@ -80,7 +80,7 @@ class CheckmarkDialog : AppCompatDialogFragment() {
         view.noBtn.setOnClickListener { onClick(NO) }
         view.skipBtn.setOnClickListener { onClick(SKIP) }
         view.unknownBtn.setOnClickListener { onClick(UNKNOWN) }
-        view.notes.setOnEditorActionListener { v, actionId, event ->
+        view.notes.setOnEditorActionListener { _, _, _ ->
             onClick(requireArguments().getInt("value"))
             true
         }

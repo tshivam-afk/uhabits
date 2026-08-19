@@ -42,10 +42,36 @@ data class Score(
             previousScore: Double,
             checkmarkValue: Double
         ): Double {
-            val multiplier = 0.5.pow(sqrt(frequency) / 13.0)
-            var score = previousScore * multiplier
-            score += checkmarkValue * (1 - multiplier)
-            return score
+            return computeWithHalfLife(frequency, previousScore, checkmarkValue, CLASSIC_HALF_LIFE)
         }
+
+        /**
+         * Recent-form score. Same exponential smoothing as [compute], but with a
+         * much shorter half-life so the last few weeks dominate. Useful as a
+         * momentum signal without changing the classic long-term score.
+         */
+        @JvmStatic
+        fun computeRecentForm(
+            frequency: Double,
+            previousScore: Double,
+            checkmarkValue: Double
+        ): Double {
+            return computeWithHalfLife(frequency, previousScore, checkmarkValue, FORM_HALF_LIFE)
+        }
+
+        @JvmStatic
+        fun computeWithHalfLife(
+            frequency: Double,
+            previousScore: Double,
+            checkmarkValue: Double,
+            halfLife: Double
+        ): Double {
+            val safeHalfLife = if (halfLife <= 0.0) CLASSIC_HALF_LIFE else halfLife
+            val multiplier = 0.5.pow(sqrt(frequency) / safeHalfLife)
+            return previousScore * multiplier + checkmarkValue * (1 - multiplier)
+        }
+
+        const val CLASSIC_HALF_LIFE = 13.0
+        const val FORM_HALF_LIFE = 4.5
     }
 }

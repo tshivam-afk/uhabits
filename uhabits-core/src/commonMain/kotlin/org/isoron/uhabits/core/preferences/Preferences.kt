@@ -62,7 +62,7 @@ open class Preferences(private val storage: Storage) {
                 HabitList.Order.valueOf(name)
             } catch (e: IllegalArgumentException) {
                 defaultSecondaryOrder = HabitList.Order.BY_NAME_ASC
-                HabitList.Order.BY_POSITION
+                HabitList.Order.BY_NAME_ASC
             }
         }
         set(order) {
@@ -201,9 +201,9 @@ open class Preferences(private val storage: Storage) {
             storage.putInt("last_version", version)
         }
     open var widgetOpacity: Int
-        get() = storage.getString("pref_widget_opacity", "255").toInt()
+        get() = storage.getString("pref_widget_opacity", "255").toIntOrNull()?.coerceIn(0, 255) ?: 255
         set(value) {
-            storage.putString("pref_widget_opacity", value.toString())
+            storage.putString("pref_widget_opacity", value.coerceIn(0, 255).toString())
         }
     open var isSkipEnabled: Boolean
         get() = storage.getBoolean("pref_skip_enabled", false)
@@ -218,6 +218,18 @@ open class Preferences(private val storage: Storage) {
             for (l in listeners) l.onQuestionMarksChanged()
         }
 
+    open var isPrivacyLockEnabled: Boolean
+        get() = storage.getBoolean("pref_privacy_lock", false)
+        set(value) {
+            storage.putBoolean("pref_privacy_lock", value)
+        }
+
+    open var isLockWhenMinimizedEnabled: Boolean
+        get() = storage.getBoolean("pref_lock_when_minimized", true)
+        set(value) {
+            storage.putBoolean("pref_lock_when_minimized", value)
+        }
+
     /**
      * @return An integer representing the first day of the week. Sunday
      * corresponds to 1, Monday to 2, and so on, until Saturday, which is
@@ -228,12 +240,12 @@ open class Preferences(private val storage: Storage) {
     open val firstWeekdayInt: Int
         get() {
             val weekday = storage.getString("pref_first_weekday", "")
-            return if (weekday.isEmpty()) getFirstWeekdayNumberAccordingToLocale() else weekday.toInt()
+            return weekday.toIntOrNull() ?: getFirstWeekdayNumberAccordingToLocale()
         }
     open val firstWeekday: DayOfWeek
         get() {
-            var weekday = storage.getString("pref_first_weekday", "-1").toInt()
-            if (weekday < 0) weekday = getFirstWeekdayNumberAccordingToLocale()
+            var weekday = storage.getString("pref_first_weekday", "-1").toIntOrNull() ?: -1
+            if (weekday !in 1..7) weekday = getFirstWeekdayNumberAccordingToLocale()
             return when (weekday) {
                 1 -> DayOfWeek.SUNDAY
                 2 -> DayOfWeek.MONDAY
@@ -241,8 +253,7 @@ open class Preferences(private val storage: Storage) {
                 4 -> DayOfWeek.WEDNESDAY
                 5 -> DayOfWeek.THURSDAY
                 6 -> DayOfWeek.FRIDAY
-                7 -> DayOfWeek.SATURDAY
-                else -> throw IllegalArgumentException()
+                else -> DayOfWeek.SATURDAY
             }
         }
 

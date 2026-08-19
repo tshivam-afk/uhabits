@@ -16,19 +16,27 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package org.isoron.uhabits.core.ui.screens.habits.show.views
 
-package org.isoron.platform.gui
+import org.isoron.uhabits.core.models.Habit
+import org.isoron.uhabits.core.models.PaletteColor
+import org.isoron.uhabits.core.models.analytics.HabitInsights
+import org.isoron.uhabits.core.ui.views.Theme
 
-import android.content.Context
-import android.util.AttributeSet
+data class InsightsCardState(
+    val color: PaletteColor,
+    val theme: Theme,
+    val insights: HabitInsights
+)
 
-class AndroidTestView(context: Context, attrs: AttributeSet) : android.view.View(context, attrs) {
-    val canvas = AndroidCanvas()
-
-    override fun onDraw(canvas: android.graphics.Canvas) {
-        this.canvas.context = context
-        this.canvas.innerCanvas = canvas
-        this.canvas.innerDensity = resources.displayMetrics.density.toDouble()
-        this.canvas.drawTestImage()
+class InsightsCardPresenter {
+    companion object {
+        fun buildState(habit: Habit, theme: Theme): InsightsCardState {
+            return InsightsCardState(
+                color = habit.color,
+                theme = theme,
+                insights = HabitInsights.compute(habit)
+            )
+        }
     }
 }

@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add advanced habit analytics: strength, recent form, consistency, recovery, weekday patterns, forecasts and a portfolio Insights screen
+- Add a today-progress strip on the habit list and bounce/slide animations throughout the app
+- Add a privacy lock that uses biometrics or the device PIN, with an option to lock as soon as the app is minimized
+- Add GitHub Actions workflow that runs unit tests, signs a release APK with a temporary key, and publishes the APK (not a zip) as a release asset
+- Implement Tasker/Locale `ACTION_SET_NUMERICAL_VALUE` handling for measurable habits
 - Add habit search that filters by name, question and notes (@I-Dont-Remember, #2338)
 - Add archive and unarchive actions on the habit statistics page (@KyleSCraig, #2194)
 - Add option to select a public folder for automatic backups via SAF (@MihanEntalpo, #2209)
@@ -11,11 +16,25 @@
 
 ### Changed
 
+- Refresh the habit screens with rounded cards, softer navigation bars and activity transitions
+- Pin OpenCSV to 5.12.0 so CI can resolve the translators script classpath
+- Generate the temp release keystore with Gradle's file() API so the Android build script compiles
+- Add a faster recent-form score alongside the classic long-term score, without changing existing score history
 - Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality, #2261)
 - Show a toast message after archiving or unarchiving habits (@iSoron, 54275020)
 
 ### Fixed
 
+- Fix midnight widget updates by comparing intent actions by value instead of identity
+- Restore numerical target type after rotation on the edit habit screen
+- Reject invalid numerical targets instead of crashing on save
+- Clamp and parse widget opacity and first-weekday settings safely
+- Return the stored fallback when the secondary sort order preference is invalid
+- Stop exporting the edit-habit screen and requiring a fake WidgetReceiver permission
+- Close activities and dialogs instead of crashing when a habit no longer exists
+- Close file streams after backup/import copies
+- Only rotate private automatic backups that match the backup filename pattern
+- Stop skip days from breaking measurable \"at least\" streaks or leaking 0.003 into the score window
 - Fix streak chart date format to be more compact (@iSoron, 07d87e4a)
 - Support content URIs when sharing backup files (@iSoron, 4383b3ed)
 - Fix frequency chart rendering random data in production (@TangilHossain, #2242)

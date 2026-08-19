@@ -22,8 +22,10 @@ import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
+import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 open class BaseScoreListTest : BaseUnitTest() {
@@ -439,6 +441,13 @@ class NumericalAtLeastScoreListWithSkipTest : NumericalScoreListTest() {
 
         // skipped days should be treated as if they never existed
         assertCloseTo(initialScore, habit.scores[today].value, E)
+    }
+
+    @Test
+    fun skipIsNotTinyProgress() {
+        assertEquals(0, ScoreList.numericalContribution(SKIP))
+        assertEquals(0, ScoreList.numericalContribution(UNKNOWN))
+        assertEquals(2000, ScoreList.numericalContribution(2000))
     }
 }
 

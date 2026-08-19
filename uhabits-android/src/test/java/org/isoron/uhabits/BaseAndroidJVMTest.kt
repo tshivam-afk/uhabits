@@ -29,7 +29,6 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
 
 open class BaseAndroidJVMTest {
     private lateinit var habitList: HabitList
@@ -53,9 +52,5 @@ open class BaseAndroidJVMTest {
 
     @After
     fun tearDown() {
-    }
-
-    @Test
-    fun nothing() {
     }
 }

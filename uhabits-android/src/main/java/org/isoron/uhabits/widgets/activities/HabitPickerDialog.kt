@@ -81,7 +81,6 @@ open class HabitPickerDialog : Activity() {
 
         setContentView(R.layout.widget_configure_activity)
         val listView = findViewById<ListView>(R.id.listView)
-        val saveButton = findViewById<Button>(R.id.buttonSave)
 
         with(listView) {
             adapter = ArrayAdapter(
@@ -89,7 +88,7 @@ open class HabitPickerDialog : Activity() {
                 android.R.layout.simple_list_item_1,
                 habitNames
             )
-            setOnItemClickListener { parent, view, position, id ->
+            setOnItemClickListener { _, _, position, _ ->
                 confirm(mutableListOf(habitIds[position]))
             }
         }

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.activities.common.views
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -111,6 +112,19 @@ class RingView : View {
     fun setPercentage(percentage: Float) {
         this.percentage = percentage
         invalidate()
+    }
+
+    fun animatePercentage(target: Float, durationMs: Long = 480) {
+        if (target == percentage) return
+        val start = percentage
+        val animator = ValueAnimator.ofFloat(start, target)
+        animator.duration = durationMs
+        animator.interpolator = android.view.animation.DecelerateInterpolator()
+        animator.addUpdateListener { animation ->
+            percentage = animation.animatedValue as Float
+            invalidate()
+        }
+        animator.start()
     }
 
     fun setPrecision(precision: Float) {

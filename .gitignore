@@ -18,5 +18,8 @@ node_modules
 *.sketch
 crowdin.yml
 kotlin-js-store
-*.md
 .kotlin
+*.jks
+*.keystore
+ci-release.*
+dist/

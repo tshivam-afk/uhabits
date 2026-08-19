@@ -27,10 +27,29 @@ class StreakList {
 
     @Synchronized
     fun getBest(limit: Int): List<Streak> {
-        list.sortWith { s1: Streak, s2: Streak -> s2.compareLonger(s1) }
-        return list.subList(0, min(list.size, limit)).apply {
-            sortWith { s1: Streak, s2: Streak -> s2.compareNewer(s1) }
-        }.toList()
+        return list
+            .sortedWith { s1: Streak, s2: Streak -> s2.compareLonger(s1) }
+            .take(min(list.size, limit))
+            .sortedWith { s1: Streak, s2: Streak -> s2.compareNewer(s1) }
+    }
+
+    @Synchronized
+    fun getAll(): List<Streak> = list.toList()
+
+    /**
+     * The streak that is still "live": it includes [today], or ended yesterday
+     * if today has not been completed yet.
+     */
+    @Synchronized
+    fun getCurrent(today: LocalDate): Streak? {
+        return list.firstOrNull { streak ->
+            streak.end == today || streak.end == today.minus(1)
+        }
+    }
+
+    @Synchronized
+    fun getLongest(): Streak? {
+        return list.maxWithOrNull { a, b -> a.compareLonger(b) }
     }
 
     @Synchronized
@@ -45,17 +64,7 @@ class StreakList {
         list.clear()
         val dates = computedEntries
             .getByInterval(from, to)
-            .filter {
-                val value = it.value
-                if (isNumerical) {
-                    when (targetType) {
-                        NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
-                        NumericalHabitType.AT_MOST -> value != Entry.UNKNOWN && value / 1000.0 <= targetValue
-                    }
-                } else {
-                    value > 0
-                }
-            }
+            .filter { isStreakDay(it.value, isNumerical, targetValue, targetType) }
             .map { it.date }
             .toTypedArray()
 
@@ -74,5 +83,29 @@ class StreakList {
             }
         }
         list.add(Streak(begin, end))
+    }
+
+    companion object {
+        /**
+         * Skip days never break a streak. Numerical "at least" skips used to fail
+         * the target check because SKIP is stored as 3 (0.003 after scaling).
+         */
+        fun isStreakDay(
+            value: Int,
+            isNumerical: Boolean,
+            targetValue: Double,
+            targetType: NumericalHabitType
+        ): Boolean {
+            if (value == Entry.SKIP) return true
+            return if (isNumerical) {
+                when (targetType) {
+                    NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
+                    NumericalHabitType.AT_MOST ->
+                        value != Entry.UNKNOWN && value / 1000.0 <= targetValue
+                }
+            } else {
+                value > 0
+            }
+        }
     }
 }

@@ -64,4 +64,33 @@ class StreakListTest : BaseUnitTest() {
         assertEquals(1, best.size)
         assertEquals(1, best[0].length)
     }
+
+    @Test
+    fun testGetCurrentAndLongest() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(3), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(4), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(5), Entry.YES_MANUAL))
+        habit.recompute()
+        val current = habit.streaks.getCurrent(today)
+        val longest = habit.streaks.getLongest()
+        assertEquals(2, current?.length)
+        assertEquals(3, longest?.length)
+        assertEquals(2, habit.streaks.getAll().size)
+    }
+
+    @Test
+    fun testSkipDoesNotBreakNumericalAtLeastStreak() {
+        habit = fixtures.createEmptyNumericalHabit(NumericalHabitType.AT_LEAST)
+        habit.frequency = Frequency.DAILY
+        habit.originalEntries.add(Entry(today, 2000))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), 2000))
+        habit.recompute()
+        val best = habit.streaks.getBest(1)
+        assertEquals(1, best.size)
+        assertEquals(3, best[0].length)
+    }
 }

@@ -67,6 +67,7 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBeh
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import org.isoron.uhabits.intents.IntentFactory
+import org.isoron.uhabits.security.PrivacyLock
 import org.isoron.uhabits.tasks.ExportDBTaskFactory
 import org.isoron.uhabits.tasks.ImportDataTask
 import org.isoron.uhabits.tasks.ImportDataTaskFactory
@@ -136,10 +137,12 @@ class ListHabitsScreen(
         if (data == null) return
         if (resultCode != Activity.RESULT_OK) return
         try {
-            val inStream = activity.contentResolver.openInputStream(data.data!!)!!
+            val uri = data.data ?: return
             val cacheDir = activity.externalCacheDir
             val tempFile = File.createTempFile("import", "", cacheDir)
-            inStream.copyTo(tempFile)
+            activity.contentResolver.openInputStream(uri)?.use { inStream ->
+                inStream.copyTo(tempFile)
+            } ?: return
             onImportData(JavaUserFile(tempFile.toPath())) { tempFile.delete() }
         } catch (e: IOException) {
             activity.showMessage(activity.resources.getString(R.string.could_not_import))
@@ -192,6 +195,7 @@ class ListHabitsScreen(
     }
 
     fun showImportScreen() {
+        org.isoron.uhabits.security.PrivacyLock.ignoreNextBackground()
         val intent = intentFactory.openDocument()
         activity.startActivityForResult(intent, REQUEST_OPEN_DOCUMENT)
     }
@@ -261,6 +265,11 @@ class ListHabitsScreen(
     override fun showSettingsScreen() {
         val intent = intentFactory.startSettingsActivity(activity)
         activity.startActivityForResult(intent, REQUEST_SETTINGS)
+    }
+
+    override fun showInsightsScreen() {
+        val intent = intentFactory.startInsightsActivity(activity)
+        activity.startActivity(intent)
     }
 
     override fun showColorPicker(defaultColor: PaletteColor, callback: OnColorPickedCallback) {

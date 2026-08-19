@@ -71,6 +71,38 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
+    fun testDefaultSecondaryOrder() {
+        assertEquals(HabitList.Order.BY_NAME_ASC, prefs.defaultSecondaryOrder)
+        prefs.defaultSecondaryOrder = HabitList.Order.BY_COLOR_ASC
+        assertEquals(HabitList.Order.BY_COLOR_ASC, prefs.defaultSecondaryOrder)
+        storage.putString("pref_default_secondary_order", "BOGUS")
+        assertEquals(HabitList.Order.BY_NAME_ASC, prefs.defaultSecondaryOrder)
+        assertEquals(
+            "BY_NAME_ASC",
+            storage.getString("pref_default_secondary_order", "")
+        )
+    }
+
+    @Test
+    fun testWidgetOpacity() {
+        assertEquals(255, prefs.widgetOpacity)
+        prefs.widgetOpacity = 128
+        assertEquals(128, prefs.widgetOpacity)
+        storage.putString("pref_widget_opacity", "not-a-number")
+        assertEquals(255, prefs.widgetOpacity)
+        prefs.widgetOpacity = 999
+        assertEquals(255, prefs.widgetOpacity)
+    }
+
+    @Test
+    fun testFirstWeekdayFallsBackOnInvalidValue() {
+        storage.putString("pref_first_weekday", "99")
+        prefs.firstWeekday
+        storage.putString("pref_first_weekday", "not-a-day")
+        prefs.firstWeekday
+    }
+
+    @Test
     fun testScoreCardSpinnerPosition() {
         assertEquals(1, prefs.scoreCardSpinnerPosition)
         prefs.scoreCardSpinnerPosition = 4
@@ -151,5 +183,15 @@ class PreferencesTest : BaseUnitTest() {
         assertFalse(prefs.isMidnightDelayEnabled)
         prefs.isMidnightDelayEnabled = true
         assertTrue(prefs.isMidnightDelayEnabled)
+    }
+
+    @Test
+    fun testPrivacyLock() {
+        assertFalse(prefs.isPrivacyLockEnabled)
+        assertTrue(prefs.isLockWhenMinimizedEnabled)
+        prefs.isPrivacyLockEnabled = true
+        prefs.isLockWhenMinimizedEnabled = false
+        assertTrue(prefs.isPrivacyLockEnabled)
+        assertFalse(prefs.isLockWhenMinimizedEnabled)
     }
 }

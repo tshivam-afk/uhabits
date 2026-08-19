@@ -1,0 +1,116 @@
+name: Build and Release
+
+on:
+  # PR sync runs the build without merging to dev.
+  # No push trigger — that was what started two jobs.
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  JAVA_VERSION: "17"
+  LOOP_KEY_ALIAS: loop-ci
+  LOOP_KEY_PASSWORD: android
+  LOOP_STORE_PASSWORD: android
+
+jobs:
+  build:
+    name: Test and build signed APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep -oP 'versionName\s*=\s*"\K[^"]+' uhabits-android/build.gradle.kts)
+          echo "name=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Generate temporary signing key
+        env:
+          LOOP_KEY_STORE: ${{ github.workspace }}/ci-release.jks
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$LOOP_KEY_STORE" \
+            -storetype JKS \
+            -alias "$LOOP_KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$LOOP_STORE_PASSWORD" \
+            -keypass "$LOOP_KEY_PASSWORD" \
+            -dname "CN=Loop CI, OU=CI, O=Loop Habit Tracker, L=Internet, ST=NA, C=US"
+
+      - name: Unit tests and release APK
+        env:
+          LOOP_KEY_STORE: ${{ github.workspace }}/ci-release.jks
+        run: |
+          ./gradlew --no-daemon --stacktrace \
+            :uhabits-core:jvmTest \
+            :uhabits-android:testDebugUnitTest \
+            :uhabits-android:assembleRelease
+
+      - name: Stage APK (not zipped)
+        id: apk
+        run: |
+          SRC="uhabits-android/build/outputs/apk/release/uhabits-android-release.apk"
+          if [ ! -f "$SRC" ]; then
+            echo "Expected signed APK not found at $SRC"
+            find uhabits-android/build/outputs/apk -type f -name '*.apk' || true
+            exit 1
+          fi
+          mkdir -p dist
+          NAME="Loop-${{ steps.version.outputs.name }}.apk"
+          cp "$SRC" "dist/$NAME"
+          echo "file=dist/$NAME" >> "$GITHUB_OUTPUT"
+          echo "filename=$NAME" >> "$GITHUB_OUTPUT"
+          ls -lh "dist/$NAME"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.filename }}
+          path: ${{ steps.apk.outputs.file }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Publish GitHub Release with APK
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ci-latest
+          name: CI latest (${{ steps.version.outputs.name }})
+          files: ${{ steps.apk.outputs.file }}
+          fail_on_unmatched_files: true
+          generate_release_notes: false
+          prerelease: true
+          make_latest: false
+          body: |
+            Signed release APK built by GitHub Actions.
+
+            **Install:** download `Loop-${{ steps.version.outputs.name }}.apk` below (not a zip).
+
+            This build is signed with a temporary CI keystore. It can be installed for testing,
+            but it will not update over a Play Store / F-Droid / locally-signed build.

@@ -39,6 +39,7 @@ import org.isoron.uhabits.utils.InterfaceUtils.getDimension
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.drawNotesIndicator
 import org.isoron.uhabits.utils.getFontAwesome
+import org.isoron.uhabits.utils.playCheckBounce
 import org.isoron.uhabits.utils.sres
 import java.text.DecimalFormat
 
@@ -118,10 +119,12 @@ class NumberButtonView(
     }
 
     override fun onClick(v: View) {
+        playCheckBounce()
         onEdit()
     }
 
     override fun onLongClick(v: View): Boolean {
+        playCheckBounce()
         onEdit()
         return true
     }

@@ -28,6 +28,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.END
@@ -78,6 +79,12 @@ class HabitCardListView(
         setHasFixedSize(true)
         isLongClickable = true
         layoutManager = LinearLayoutManager(context)
+        itemAnimator = DefaultItemAnimator().apply {
+            addDuration = 220
+            removeDuration = 180
+            moveDuration = 220
+            changeDuration = 180
+        }
         applyBottomInset()
         super.setAdapter(adapter)
     }

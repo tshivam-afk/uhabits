@@ -60,13 +60,37 @@ android {
     }
 
     signingConfigs {
-        if (System.getenv("LOOP_KEY_ALIAS") != null) {
-            create("release") {
-                keyAlias = System.getenv("LOOP_KEY_ALIAS")
-                keyPassword = System.getenv("LOOP_KEY_PASSWORD")
-                storeFile = file(System.getenv("LOOP_KEY_STORE"))
-                storePassword = System.getenv("LOOP_STORE_PASSWORD")
+        create("release") {
+            val envStore = System.getenv("LOOP_KEY_STORE")
+            val alias = System.getenv("LOOP_KEY_ALIAS") ?: "loop-ci"
+            val storePasswordValue = System.getenv("LOOP_STORE_PASSWORD") ?: "android"
+            val keyPasswordValue = System.getenv("LOOP_KEY_PASSWORD") ?: storePasswordValue
+            val store = if (envStore != null) file(envStore) else file("ci-release.jks")
+
+            if (envStore == null && !store.exists()) {
+                val keytool = file("${System.getProperty("java.home")}/bin/keytool")
+                val result = ProcessBuilder(
+                    keytool.absolutePath,
+                    "-genkeypair",
+                    "-keystore", store.absolutePath,
+                    "-storetype", "JKS",
+                    "-alias", alias,
+                    "-keyalg", "RSA",
+                    "-keysize", "2048",
+                    "-validity", "10000",
+                    "-storepass", storePasswordValue,
+                    "-keypass", keyPasswordValue,
+                    "-dname", "CN=Loop Temp, OU=CI, O=Loop Habit Tracker, L=Internet, ST=NA, C=US"
+                ).inheritIO().start().waitFor()
+                if (result != 0) {
+                    error("Failed to generate temporary release keystore at ${store.absolutePath}")
+                }
             }
+
+            keyAlias = alias
+            keyPassword = keyPasswordValue
+            storeFile = store
+            storePassword = storePasswordValue
         }
     }
 
@@ -74,9 +98,7 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.txt")
-            if (signingConfigs.findByName("release") != null) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = signingConfigs.getByName("release")
         }
 
         debug {
@@ -95,7 +117,10 @@ android {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
-    buildFeatures.viewBinding = true
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
     lint.abortOnError = false
 }
 
@@ -108,23 +133,17 @@ mokkery {
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appIntro)
-    implementation(libs.jsr305)
     implementation(libs.kotlin.inject.runtime)
-    implementation(libs.guava)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.jackson)
-    implementation(libs.ktor.client.json)
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.appcompat)
-    implementation(libs.legacy.preference.v14)
-    implementation(libs.legacy.support.v4)
+    implementation(libs.preference.ktx)
     implementation(libs.material)
     implementation(libs.documentfile)
-    implementation(libs.opencsv)
     implementation(libs.konfetti.xml)
+    implementation(libs.biometric)
+    implementation(libs.lifecycle.process)
     implementation(project(":uhabits-core"))
     ksp(libs.kotlin.inject.compiler)
 
@@ -133,11 +152,10 @@ dependencies {
     androidTestImplementation(libs.espresso.contrib)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.ktor.client.mock)
-    androidTestImplementation(libs.ktor.jackson)
     androidTestImplementation(libs.rules)
     androidTestImplementation(libs.uiautomator)
 
     testImplementation(libs.kotlin.inject.runtime)
     testImplementation(libs.junit.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

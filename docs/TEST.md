@@ -7,7 +7,7 @@ Loop Habit Tracker has a fairly large number of automated tests to reduce the ch
 
 ## Running unit tests
 
-Unit tests can be launched by running `./gradlew test` or by right-clicking a particular class/method in Android Studio and selecting "Run testMethod()" or "Run ClassTest". An alternative way is to use `build.sh`, the script used by our continuous integration server. By running `./build.sh build`, the script will automatically build and run all small tests.
+Unit tests can be launched by running `./gradlew :uhabits-core:jvmTest :uhabits-android:testDebugUnitTest` or by right-clicking a particular class/method in Android Studio and selecting "Run testMethod()" or "Run ClassTest". GitHub Actions runs these unit tests on every push and pull request, then publishes a signed `Loop-<version>.apk`. You can also use `build.sh`: `./build.sh build` builds the app and runs the small tests.
 
 ## Running instrumented tests
 

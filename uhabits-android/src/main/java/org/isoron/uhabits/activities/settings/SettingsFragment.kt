@@ -31,10 +31,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
@@ -49,6 +51,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.createAndroidNotificationChannel
 import org.isoron.uhabits.notifications.RingtoneManager
+import org.isoron.uhabits.security.PrivacyLock
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.startActivitySafely
@@ -95,6 +98,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         setResultOnPreferenceClick("exportDB", RESULT_EXPORT_DB)
         setResultOnPreferenceClick("repairDB", RESULT_REPAIR_DB)
         setResultOnPreferenceClick("bugReport", RESULT_BUG_REPORT)
+        setupPrivacyLockPreference()
     }
 
     override fun onCreatePreferences(bundle: Bundle?, s: String?) {
@@ -107,16 +111,16 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val sr = StyledResources(context!!)
+        val sr = StyledResources(requireContext())
         view.setBackgroundColor(sr.getColor(R.attr.contrast0))
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onCreateRecyclerView(
-        inflater: LayoutInflater?,
-        parent: ViewGroup?,
+        inflater: LayoutInflater,
+        parent: ViewGroup,
         savedInstanceState: Bundle?
-    ): RecyclerView? {
+    ): RecyclerView {
         return super.onCreateRecyclerView(inflater, parent, savedInstanceState)
             .also { it.applyBottomInset() }
     }
@@ -129,6 +133,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 return true
             }
             "reminderCustomize" -> {
+                PrivacyLock.ignoreNextBackground()
                 createAndroidNotificationChannel(requireContext())
                 val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
@@ -137,11 +142,13 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 return true
             }
             "rateApp" -> {
+                PrivacyLock.ignoreNextBackground()
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.playStoreURL)))
                 activity?.startActivitySafely(intent)
                 return true
             }
             "publicBackupFolder" -> {
+                PrivacyLock.ignoreNextBackground()
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                 intent.addFlags(
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or
@@ -161,17 +168,17 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         sharedPrefs = preferenceManager.sharedPreferences
         sharedPrefs!!.registerOnSharedPreferenceChangeListener(this)
         if (!prefs.isDeveloper) {
-            val devCategory = findPreference("devCategory") as PreferenceCategory
-            devCategory.isVisible = false
+            findPreference<PreferenceCategory>("devCategory")?.isVisible = false
         }
         updateWeekdayPreference()
         updatePublicBackupFolderSummary()
 
-        findPreference("reminderSound").isVisible = false
+        findPreference<Preference>("reminderSound")?.isVisible = false
+        updatePrivacyLockDependencies()
     }
 
     private fun updateWeekdayPreference() {
-        val weekdayPref = findPreference("pref_first_weekday") as ListPreference
+        val weekdayPref = findPreference<ListPreference>("pref_first_weekday") ?: return
         val currentFirstWeekday = prefs.firstWeekday.daysSinceSunday + 1
         val dayNames = JavaLocalDateFormatter(Locale.getDefault()).longWeekdayNames(DayOfWeek.SATURDAY)
         val dayValues = arrayOf("7", "1", "2", "3", "4", "5", "6")
@@ -191,10 +198,13 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         }
         BackupManager.dataChanged("org.isoron.uhabits")
         updateWeekdayPreference()
+        if (key == "pref_privacy_lock" || key == "pref_lock_when_minimized") {
+            updatePrivacyLockDependencies()
+        }
     }
 
     private fun setResultOnPreferenceClick(key: String, result: Int) {
-        val pref = findPreference(key)
+        val pref = findPreference<Preference>(key) ?: return
         pref.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 requireActivity().setResult(result)
@@ -203,7 +213,31 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             }
     }
 
+    private fun setupPrivacyLockPreference() {
+        val pref = findPreference<SwitchPreferenceCompat>("pref_privacy_lock") ?: return
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val enable = newValue as Boolean
+            if (enable && !PrivacyLock.isDeviceSecure(requireContext())) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.pref_privacy_lock_title)
+                    .setMessage(R.string.privacy_lock_need_screen_lock)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                false
+            } else {
+                if (enable) PrivacyLock.unlock()
+                true
+            }
+        }
+    }
+
+    private fun updatePrivacyLockDependencies() {
+        findPreference<SwitchPreferenceCompat>("pref_lock_when_minimized")?.isEnabled =
+            prefs.isPrivacyLockEnabled
+    }
+
     private fun showRingtonePicker() {
+        PrivacyLock.ignoreNextBackground()
         val existingRingtoneUri = ringtoneManager!!.getURI()
         val defaultRingtoneUri = Settings.System.DEFAULT_NOTIFICATION_URI
         val intent = Intent(android.media.RingtoneManager.ACTION_RINGTONE_PICKER)
@@ -226,12 +260,12 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
 
     private fun updateRingtoneDescription() {
         val ringtoneName = ringtoneManager!!.getName() ?: return
-        val ringtonePreference = findPreference("reminderSound")
+        val ringtonePreference = findPreference<Preference>("reminderSound") ?: return
         ringtonePreference.summary = ringtoneName
     }
 
     private fun updatePublicBackupFolderSummary() {
-        val pref = findPreference("publicBackupFolder")
+        val pref = findPreference<Preference>("publicBackupFolder") ?: return
         val uriString = sharedPrefs?.getString("publicBackupFolder", null)
         if (uriString == null) {
             pref.summary = getString(R.string.no_public_backup_folder_selected)

@@ -45,9 +45,10 @@ class EmptyListView(context: Context) : LinearLayout(context) {
         iconTextView = TextView(context).apply {
             text = str(R.string.fa_star_half_o)
             typeface = getFontAwesome()
-            textSize = sp(40.0f)
+            textSize = sp(46.0f)
             gravity = CENTER
             setTextColor(sres.getColor(R.attr.contrast60))
+            alpha = 0.9f
         }
 
         addView(

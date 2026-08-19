@@ -20,6 +20,7 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import android.graphics.Outline
 import android.graphics.PointF
 import android.graphics.text.LineBreaker.BREAK_STRATEGY_BALANCED
 import android.os.Build
@@ -31,6 +32,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -46,6 +48,7 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dp
+import org.isoron.uhabits.utils.playFadeIn
 import org.isoron.uhabits.utils.sres
 
 @Inject
@@ -93,8 +96,13 @@ class HabitCardView(
     var score
         get() = scoreRing.getPercentage().toDouble()
         set(value) {
-            scoreRing.setPercentage(value.toFloat())
             scoreRing.setPrecision(1.0f / 16)
+            val next = value.toFloat()
+            if (hasAppeared && kotlin.math.abs(scoreRing.getPercentage() - next) > 0.02f) {
+                scoreRing.animatePercentage(next)
+            } else {
+                scoreRing.setPercentage(next)
+            }
         }
 
     var unit
@@ -130,12 +138,13 @@ class HabitCardView(
     private var scoreRing: RingView
 
     private var currentToggleTaskId = 0
+    private var hasAppeared = false
 
     init {
         scoreRing = RingView(context).apply {
-            val thickness = dp(3f)
-            val margin = dp(8f).toInt()
-            val ringSize = dp(15f).toInt()
+            val thickness = dp(3.5f)
+            val margin = dp(10f).toInt()
+            val ringSize = dp(18f).toInt()
             layoutParams = LinearLayout.LayoutParams(ringSize, ringSize).apply {
                 setMargins(margin, 0, margin, 0)
                 gravity = Gravity.CENTER
@@ -187,7 +196,15 @@ class HabitCardView(
             gravity = Gravity.CENTER_VERTICAL
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            elevation = dp(1f)
+            elevation = dp(2f)
+            val vertical = dp(4f).toInt()
+            setPadding(0, vertical, 0, vertical)
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, dp(14f))
+                }
+            }
+            clipToOutline = true
 
             addView(scoreRing)
             addView(label)
@@ -201,10 +218,12 @@ class HabitCardView(
         }
 
         clipToPadding = false
+        clipChildren = false
         layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-        val margin = dp(3f).toInt()
-        setPadding(margin, 0, margin, margin)
+        val margin = dp(6f).toInt()
+        setPadding(margin, dp(3f).toInt(), margin, dp(3f).toInt())
         addView(innerFrame)
+        updateBackground(false)
     }
 
     override fun onModelChange() {
@@ -256,6 +275,10 @@ class HabitCardView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         habit?.observable?.addListener(this)
+        if (!hasAppeared) {
+            hasAppeared = true
+            playFadeIn()
+        }
     }
 
     override fun onDetachedFromWindow() {
@@ -311,7 +334,7 @@ class HabitCardView(
     private fun updateBackground(isSelected: Boolean) {
         val background = when (isSelected) {
             true -> R.drawable.selected_box
-            false -> R.drawable.ripple
+            false -> R.drawable.ripple_rounded
         }
         innerFrame.setBackgroundResource(background)
     }

@@ -30,8 +30,6 @@ import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.checkSelfPermission
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
 import org.isoron.uhabits.HabitsApplication
@@ -59,7 +57,6 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
     lateinit var screen: ListHabitsScreen
     lateinit var prefs: Preferences
     lateinit var midnightTimer: MidnightTimer
-    private val scope = CoroutineScope(Dispatchers.Main)
 
     private var permissionAlreadyRequested = false
     private val permissionLauncher =
@@ -124,11 +121,11 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
                 if (checkSelfPermission(this, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
                     scheduleReminders()
                 } else {
-                    // If we have not requested the permission yet, request it. Otherwide do
+                    // If we have not requested the permission yet, request it. Otherwise do
                     // nothing. This check is necessary to avoid an infinite onResume loop in case
                     // the user denies the permission.
                     if (!permissionAlreadyRequested) {
-                        Log.i("ListHabitsActivity", "Requestion permission: POST_NOTIFICATIONS")
+                        Log.i("ListHabitsActivity", "Requesting permission: POST_NOTIFICATIONS")
                         permissionLauncher.launch(POST_NOTIFICATIONS)
                         permissionAlreadyRequested = true
                     }
@@ -149,6 +146,11 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         }
         parseIntents()
         super.onResume()
+    }
+
+    override fun onDestroy() {
+        prefs.removeListener(this)
+        super.onDestroy()
     }
 
     private fun scheduleReminders() {
@@ -177,7 +179,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
             val habitId = intent.extras?.getLong("habit")
             val timestampMillis = intent.extras?.getLong("timestamp")
             if (habitId != null && timestampMillis != null) {
-                val habit = appComponent.habitList.getById(habitId)!!
+                val habit = appComponent.habitList.getById(habitId) ?: return
                 val date = LocalDate.fromUnixTime(timestampMillis)
                 component.listHabitsBehavior.onEdit(habit, date, 0f, 0f)
             }
@@ -185,6 +187,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         intent = null
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)

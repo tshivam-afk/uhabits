@@ -55,11 +55,13 @@ class WidgetReceiver : BroadcastReceiver() {
         Log.i(TAG, String.format("Received intent: %s", intent.toString()))
         lastReceivedIntent = intent
         try {
+            // Intent extras are parceled by AlarmManager, so compare actions by value, not identity.
+            val action = intent.action
             var data: CheckmarkIntentData? = null
-            if (intent.action !== ACTION_UPDATE_WIDGETS_VALUE) {
+            if (action != ACTION_UPDATE_WIDGETS_VALUE) {
                 data = parser.parseCheckmarkIntent(intent)
             }
-            when (intent.action) {
+            when (action) {
                 ACTION_ADD_REPETITION -> {
                     Log.d(
                         TAG,
@@ -102,6 +104,25 @@ class WidgetReceiver : BroadcastReceiver() {
                         data.date
                     )
                 }
+                ACTION_SET_NUMERICAL_VALUE -> {
+                    val value = readNumericalValue(intent)
+                    if (value == null || data == null) {
+                        Log.e(TAG, "Missing habit or value for ACTION_SET_NUMERICAL_VALUE")
+                        return
+                    }
+                    val milliValue = (value * 1000).toInt()
+                    val notes = data.habit.originalEntries.get(data.date).notes
+                    Log.d(
+                        TAG,
+                        String.format(
+                            "onSetNumericalValue habit=%d date=%s value=%s",
+                            data.habit.id,
+                            data.date,
+                            value
+                        )
+                    )
+                    controller.setValue(data.habit, data.date, milliValue, notes)
+                }
                 ACTION_UPDATE_WIDGETS_VALUE -> {
                     setToday(computeToday(prefs.midnightDelayHours, 0))
                     widgetUpdater.updateWidgets()
@@ -113,12 +134,24 @@ class WidgetReceiver : BroadcastReceiver() {
         }
     }
 
+    private fun readNumericalValue(intent: Intent): Double? {
+        val extras = intent.extras ?: return null
+        if (!extras.containsKey(EXTRA_NUMERICAL_VALUE)) return null
+        return when (val raw = extras.get(EXTRA_NUMERICAL_VALUE)) {
+            is Number -> raw.toDouble()
+            is String -> raw.replace(',', '.').toDoubleOrNull()
+            else -> null
+        }
+    }
+
     companion object {
         const val ACTION_ADD_REPETITION = "org.isoron.uhabits.ACTION_ADD_REPETITION"
         const val ACTION_DISMISS_REMINDER = "org.isoron.uhabits.ACTION_DISMISS_REMINDER"
         const val ACTION_REMOVE_REPETITION = "org.isoron.uhabits.ACTION_REMOVE_REPETITION"
         const val ACTION_TOGGLE_REPETITION = "org.isoron.uhabits.ACTION_TOGGLE_REPETITION"
+        const val ACTION_SET_NUMERICAL_VALUE = "org.isoron.uhabits.ACTION_SET_NUMERICAL_VALUE"
         const val ACTION_UPDATE_WIDGETS_VALUE = "org.isoron.uhabits.ACTION_UPDATE_WIDGETS_VALUE"
+        const val EXTRA_NUMERICAL_VALUE = "value"
         private const val TAG = "WidgetReceiver"
         var lastReceivedIntent: Intent? = null
             private set
