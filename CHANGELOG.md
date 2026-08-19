@@ -24,6 +24,9 @@
 - Clamp and parse widget opacity and first-weekday settings safely
 - Return the stored fallback when the secondary sort order preference is invalid
 - Stop exporting the edit-habit screen and requiring a fake WidgetReceiver permission
+- Close activities and dialogs instead of crashing when a habit no longer exists
+- Close file streams after backup/import copies
+- Only rotate private automatic backups that match the backup filename pattern
 - Fix streak chart date format to be more compact (@iSoron, 07d87e4a)
 - Support content URIs when sharing backup files (@iSoron, 4383b3ed)
 - Fix frequency chart rendering random data in production (@TangilHossain, #2242)

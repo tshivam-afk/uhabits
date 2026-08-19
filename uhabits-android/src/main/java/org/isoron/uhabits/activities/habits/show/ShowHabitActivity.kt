@@ -23,10 +23,11 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.AndroidDirFinder
@@ -68,7 +69,7 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
     private lateinit var themeSwitcher: AndroidThemeSwitcher
     private lateinit var widgetUpdater: WidgetUpdater
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var presenter: ShowHabitPresenter
     private val screen = Screen()
 
@@ -77,7 +78,13 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
 
         val appComponent = (applicationContext as HabitsApplication).component
         val habitList = appComponent.habitList
-        habit = habitList.getById(ContentUris.parseId(intent.data!!))!!
+        val habitId = intent.data?.let { ContentUris.parseId(it) }
+        val loaded = habitId?.let { habitList.getById(it) }
+        if (loaded == null) {
+            finish()
+            return
+        }
+        habit = loaded
         preferences = appComponent.preferences
         commandRunner = appComponent.commandRunner
         widgetUpdater = appComponent.widgetUpdater
@@ -136,6 +143,11 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
         dismissCurrentDialog()
         commandRunner.removeListener(this)
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
     }
 
     override fun onCommandFinished(command: Command) {
@@ -201,12 +213,6 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
             }
             dialog.onToggle = { v, n -> callback.onNotesSaved(v, n) }
             dialog.dismissCurrentAndShow(supportFragmentManager, "checkmarkDialog")
-        }
-
-        private fun getPopupAnchor(): View? {
-            val dialog =
-                supportFragmentManager.findFragmentByTag("historyEditor") as HistoryEditorDialog?
-            return dialog?.dataView
         }
 
         override fun showEditHabitScreen(habit: Habit) {

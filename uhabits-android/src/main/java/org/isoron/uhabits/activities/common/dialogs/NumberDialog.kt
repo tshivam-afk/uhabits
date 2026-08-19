@@ -79,7 +79,7 @@ class NumberDialog : AppCompatDialogFragment() {
             save()
         }
 
-        view.notes.setOnEditorActionListener { v, actionId, event ->
+        view.notes.setOnEditorActionListener { _, _, _ ->
             save()
             true
         }

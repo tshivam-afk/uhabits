@@ -121,7 +121,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
                 if (checkSelfPermission(this, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
                     scheduleReminders()
                 } else {
-                    // If we have not requested the permission yet, request it. Otherwide do
+                    // If we have not requested the permission yet, request it. Otherwise do
                     // nothing. This check is necessary to avoid an infinite onResume loop in case
                     // the user denies the permission.
                     if (!permissionAlreadyRequested) {
@@ -146,6 +146,11 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         }
         parseIntents()
         super.onResume()
+    }
+
+    override fun onDestroy() {
+        prefs.removeListener(this)
+        super.onDestroy()
     }
 
     private fun scheduleReminders() {
@@ -174,7 +179,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
             val habitId = intent.extras?.getLong("habit")
             val timestampMillis = intent.extras?.getLong("timestamp")
             if (habitId != null && timestampMillis != null) {
-                val habit = appComponent.habitList.getById(habitId)!!
+                val habit = appComponent.habitList.getById(habitId) ?: return
                 val date = LocalDate.fromUnixTime(timestampMillis)
                 component.listHabitsBehavior.onEdit(habit, date, 0f, 0f)
             }

@@ -53,7 +53,12 @@ class HistoryEditorDialog : AppCompatDialogFragment(), CommandRunner.Listener {
         clearCurrentDialog()
         val component = (requireActivity().application as HabitsApplication).component
         commandRunner = component.commandRunner
-        habit = component.habitList.getById(requireArguments().getLong("habit"))!!
+        val loaded = component.habitList.getById(requireArguments().getLong("habit"))
+        if (loaded == null) {
+            dismiss()
+            return Dialog(requireContext())
+        }
+        habit = loaded
         preferences = component.preferences
 
         val themeSwitcher = AndroidThemeSwitcher(requireActivity(), preferences)

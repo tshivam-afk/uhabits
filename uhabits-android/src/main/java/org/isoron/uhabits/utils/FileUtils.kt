@@ -27,14 +27,17 @@ import java.io.InputStream
 import java.io.OutputStream
 
 fun File.copyTo(dst: File) {
-    val inStream = FileInputStream(this)
-    val outStream = FileOutputStream(dst)
-    inStream.copyTo(outStream)
+    FileInputStream(this).use { input ->
+        FileOutputStream(dst).use { output ->
+            input.copyTo(output)
+        }
+    }
 }
 
 fun InputStream.copyTo(dst: File) {
-    val outStream = FileOutputStream(dst)
-    this.copyTo(outStream)
+    FileOutputStream(dst).use { output ->
+        this.copyTo(output)
+    }
 }
 
 fun InputStream.copyTo(out: OutputStream) {

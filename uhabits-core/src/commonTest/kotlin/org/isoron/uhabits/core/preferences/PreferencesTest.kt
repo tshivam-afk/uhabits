@@ -95,6 +95,14 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
+    fun testFirstWeekdayFallsBackOnInvalidValue() {
+        storage.putString("pref_first_weekday", "99")
+        prefs.firstWeekday
+        storage.putString("pref_first_weekday", "not-a-day")
+        prefs.firstWeekday
+    }
+
+    @Test
     fun testScoreCardSpinnerPosition() {
         assertEquals(1, prefs.scoreCardSpinnerPosition)
         prefs.scoreCardSpinnerPosition = 4

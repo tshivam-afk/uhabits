@@ -233,7 +233,7 @@ open class Preferences(private val storage: Storage) {
     open val firstWeekday: DayOfWeek
         get() {
             var weekday = storage.getString("pref_first_weekday", "-1").toIntOrNull() ?: -1
-            if (weekday < 0) weekday = getFirstWeekdayNumberAccordingToLocale()
+            if (weekday !in 1..7) weekday = getFirstWeekdayNumberAccordingToLocale()
             return when (weekday) {
                 1 -> DayOfWeek.SUNDAY
                 2 -> DayOfWeek.MONDAY
@@ -241,8 +241,7 @@ open class Preferences(private val storage: Storage) {
                 4 -> DayOfWeek.WEDNESDAY
                 5 -> DayOfWeek.THURSDAY
                 6 -> DayOfWeek.FRIDAY
-                7 -> DayOfWeek.SATURDAY
-                else -> throw IllegalArgumentException()
+                else -> DayOfWeek.SATURDAY
             }
         }
 

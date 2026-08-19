@@ -48,7 +48,10 @@ class SnoozeDelayPickerActivity : FragmentActivity(), OnItemClickListener {
     override fun onCreate(bundle: Bundle?) {
         super.onCreate(bundle)
         val intent = intent
-        if (intent == null) finish()
+        if (intent == null) {
+            finish()
+            return
+        }
         val app = applicationContext as HabitsApplication
         val appComponent = app.component
         val themeSwitcher = AndroidThemeSwitcher(this, appComponent.preferences)
@@ -57,10 +60,13 @@ class SnoozeDelayPickerActivity : FragmentActivity(), OnItemClickListener {
         val data = intent.data
         if (data == null) {
             finish()
-        } else {
-            habit = appComponent.habitList.getById(ContentUris.parseId(data))
+            return
         }
-        if (habit == null) finish()
+        habit = appComponent.habitList.getById(ContentUris.parseId(data))
+        if (habit == null) {
+            finish()
+            return
+        }
         androidColor = themeSwitcher.currentTheme.color(habit!!.color).toInt()
         reminderController = appComponent.reminderController
         dialog = AlertDialog.Builder(this)
