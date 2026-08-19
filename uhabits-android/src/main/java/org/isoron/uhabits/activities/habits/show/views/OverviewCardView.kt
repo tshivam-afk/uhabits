@@ -50,7 +50,11 @@ class OverviewCardView(context: Context, attrs: AttributeSet) : LinearLayout(con
         binding.scoreLabel.setTextColor(androidColor)
         binding.scoreLabel.text = String.format("%.0f%%", state.scoreToday * 100)
         binding.scoreRing.setColor(androidColor)
-        binding.scoreRing.setPercentage(state.scoreToday)
+        if (binding.scoreRing.getPercentage() == 0f) {
+            binding.scoreRing.animatePercentage(state.scoreToday)
+        } else {
+            binding.scoreRing.setPercentage(state.scoreToday)
+        }
 
         binding.title.setTextColor(androidColor)
         binding.totalCountLabel.setTextColor(androidColor)

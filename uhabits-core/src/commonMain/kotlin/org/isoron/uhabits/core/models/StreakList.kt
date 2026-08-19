@@ -34,6 +34,25 @@ class StreakList {
     }
 
     @Synchronized
+    fun getAll(): List<Streak> = list.toList()
+
+    /**
+     * The streak that is still "live": it includes [today], or ended yesterday
+     * if today has not been completed yet.
+     */
+    @Synchronized
+    fun getCurrent(today: LocalDate): Streak? {
+        return list.firstOrNull { streak ->
+            streak.end == today || streak.end == today.minus(1)
+        }
+    }
+
+    @Synchronized
+    fun getLongest(): Streak? {
+        return list.maxWithOrNull { a, b -> a.compareLonger(b) }
+    }
+
+    @Synchronized
     fun recompute(
         computedEntries: EntryList,
         from: LocalDate,

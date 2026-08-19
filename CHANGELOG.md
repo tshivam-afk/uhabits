@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add advanced habit analytics: strength, recent form, consistency, recovery, weekday patterns, forecasts and a portfolio Insights screen
+- Add a today-progress strip on the habit list and bounce/slide animations throughout the app
 - Add a privacy lock that uses biometrics or the device PIN, with an option to lock as soon as the app is minimized
 - Add GitHub Actions workflow that runs unit tests, signs a release APK with a temporary key, and publishes the APK (not a zip) as a release asset
 - Implement Tasker/Locale `ACTION_SET_NUMERICAL_VALUE` handling for measurable habits
@@ -14,6 +16,8 @@
 
 ### Changed
 
+- Refresh the habit screens with rounded cards, softer navigation bars and activity transitions
+- Add a faster recent-form score alongside the classic long-term score, without changing existing score history
 - Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality, #2261)
 - Show a toast message after archiving or unarchiving habits (@iSoron, 54275020)
 
@@ -28,6 +32,7 @@
 - Close activities and dialogs instead of crashing when a habit no longer exists
 - Close file streams after backup/import copies
 - Only rotate private automatic backups that match the backup filename pattern
+- Stop skip days from breaking measurable \"at least\" streaks or leaking 0.003 into the score window
 - Fix streak chart date format to be more compact (@iSoron, 07d87e4a)
 - Support content URIs when sharing backup files (@iSoron, 4383b3ed)
 - Fix frequency chart rendering random data in production (@TangilHossain, #2242)

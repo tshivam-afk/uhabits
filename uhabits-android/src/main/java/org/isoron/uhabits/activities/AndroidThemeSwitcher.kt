@@ -59,6 +59,8 @@ constructor(
         context.setTheme(R.style.AppBaseThemeDark)
         (context as Activity).window.navigationBarColor =
             ContextCompat.getColor(context, R.color.grey_900)
+        (context as Activity).window.navigationBarDividerColor =
+            ContextCompat.getColor(context, R.color.grey_900)
     }
 
     override fun applyLightTheme() {

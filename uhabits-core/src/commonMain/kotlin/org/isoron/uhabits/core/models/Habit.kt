@@ -76,6 +76,22 @@ data class Habit(
         return value != Entry.UNKNOWN
     }
 
+    /**
+     * Whether [entry] counts as a successful day for this habit.
+     * Skip and unknown days are never successful.
+     */
+    fun isSuccessful(entry: Entry): Boolean {
+        if (entry.value == Entry.SKIP || entry.value == Entry.UNKNOWN) return false
+        return if (isNumerical) {
+            when (targetType) {
+                NumericalHabitType.AT_LEAST -> entry.value / 1000.0 >= targetValue
+                NumericalHabitType.AT_MOST -> entry.value / 1000.0 <= targetValue
+            }
+        } else {
+            entry.value == Entry.YES_MANUAL || entry.value == Entry.YES_AUTO
+        }
+    }
+
     fun recompute() {
         computedEntries.recomputeFrom(
             originalEntries = originalEntries,

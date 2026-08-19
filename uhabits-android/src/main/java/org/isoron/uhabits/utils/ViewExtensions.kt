@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Handler
 import android.os.SystemClock
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -38,6 +39,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import android.view.animation.DecelerateInterpolator
 import android.widget.RelativeLayout
 import android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM
 import android.widget.RelativeLayout.ALIGN_PARENT_TOP
@@ -288,4 +290,60 @@ fun View.applyToolbarInsets() {
         view.setPadding(0, top, 0, 0)
         insets
     }
+}
+
+fun View.areSystemAnimationsEnabled(): Boolean {
+    return Settings.Global.getFloat(
+        context.contentResolver,
+        Settings.Global.ANIMATOR_DURATION_SCALE,
+        1f
+    ) != 0f
+}
+
+fun View.playCheckBounce() {
+    if (!areSystemAnimationsEnabled()) return
+    animate().cancel()
+    scaleX = 1f
+    scaleY = 1f
+    animate()
+        .scaleX(0.78f)
+        .scaleY(0.78f)
+        .setDuration(70)
+        .withEndAction {
+            animate()
+                .scaleX(1.12f)
+                .scaleY(1.12f)
+                .setDuration(90)
+                .withEndAction {
+                    animate().scaleX(1f).scaleY(1f).setDuration(80).start()
+                }
+                .start()
+        }
+        .start()
+}
+
+fun View.playCardEnter(delayMs: Long = 0) {
+    if (!areSystemAnimationsEnabled()) return
+    alpha = 0f
+    translationY = dp(18f)
+    animate()
+        .alpha(1f)
+        .translationY(0f)
+        .setStartDelay(delayMs)
+        .setDuration(280)
+        .setInterpolator(DecelerateInterpolator())
+        .start()
+}
+
+fun View.playFadeIn(delayMs: Long = 0) {
+    if (!areSystemAnimationsEnabled()) {
+        alpha = 1f
+        return
+    }
+    alpha = 0f
+    animate()
+        .alpha(1f)
+        .setStartDelay(delayMs)
+        .setDuration(220)
+        .start()
 }

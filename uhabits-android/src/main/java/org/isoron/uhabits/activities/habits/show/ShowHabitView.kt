@@ -27,10 +27,12 @@ import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitState
 import org.isoron.uhabits.databinding.ShowHabitBinding
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.playCardEnter
 import org.isoron.uhabits.utils.setupToolbar
 
 class ShowHabitView(context: Context) : FrameLayout(context) {
     private val binding = ShowHabitBinding.inflate(LayoutInflater.from(context))
+    private var didAnimateCards = false
 
     init {
         binding.toolbar.applyToolbarInsets()
@@ -46,6 +48,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         )
         binding.subtitleCard.setState(data.subtitle)
         binding.overviewCard.setState(data.overview)
+        binding.insightsCard.setState(data.insights)
         binding.notesCard.setState(data.notes)
         binding.targetCard.setState(data.target)
         binding.streakCard.setState(data.streaks)
@@ -59,6 +62,21 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             binding.targetCard.visibility = GONE
         }
         binding.linearLayout.applyBottomInset()
+        if (!didAnimateCards) {
+            didAnimateCards = true
+            animateCards()
+        }
+    }
+
+    private fun animateCards() {
+        val layout = binding.linearLayout
+        var delay = 0L
+        for (i in 0 until layout.childCount) {
+            val child = layout.getChildAt(i)
+            if (child.visibility != VISIBLE) continue
+            child.playCardEnter(delay)
+            delay += 40L
+        }
     }
 
     fun setListener(presenter: ShowHabitPresenter) {

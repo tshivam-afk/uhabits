@@ -112,6 +112,23 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
+    fun test_isSuccessful() {
+        val h = modelFactory.buildHabit()
+        val today = getToday()
+        assertFalse(h.isSuccessful(Entry(today, Entry.UNKNOWN)))
+        assertFalse(h.isSuccessful(Entry(today, Entry.NO)))
+        assertFalse(h.isSuccessful(Entry(today, Entry.SKIP)))
+        assertTrue(h.isSuccessful(Entry(today, Entry.YES_MANUAL)))
+        assertTrue(h.isSuccessful(Entry(today, Entry.YES_AUTO)))
+        h.type = HabitType.NUMERICAL
+        h.targetType = NumericalHabitType.AT_LEAST
+        h.targetValue = 2.0
+        assertTrue(h.isSuccessful(Entry(today, 2000)))
+        assertFalse(h.isSuccessful(Entry(today, 1999)))
+        assertFalse(h.isSuccessful(Entry(today, Entry.SKIP)))
+    }
+
+    @Test
     fun testURI() {
         assertTrue(habitList.isEmpty)
         val h = modelFactory.buildHabit()

@@ -26,7 +26,10 @@
         <item name="android:dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
         <item name="android:itemBackground">?attr/contrast0</item>
-        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?windowBackgroundColor</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:windowAnimationStyle">@style/AppWindowAnimation</item>
+        <item name="android:windowContentTransitions">true</item>
         <item name="android:textColor">@color/grey_800</item>
         <item name="cardBackground">@drawable/card_light_background</item>
         <item name="cardBgColor">@color/grey_50</item>
@@ -107,6 +110,10 @@
         <item name="widgetBackgroundAlpha">1</item>
         <item name="widgetShadowAlpha">0.25</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:navigationBarColor">?windowBackgroundColor</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:windowAnimationStyle">@style/AppWindowAnimation</item>
+        <item name="android:windowContentTransitions">true</item>
         <item name="windowBackgroundColor">@color/grey_900</item>
         <item name="buttonBarNegativeButtonStyle">@style/DialogButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/DialogButtonStyle</item>
@@ -207,9 +214,24 @@
     </style>
 
     <style name="Card" parent="CardCommon">
-        <item name="android:layout_marginBottom">1dp</item>
-        <item name="android:elevation">1dp</item>
-        <item name="android:background">?attr/cardBgColor</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:elevation">2dp</item>
+        <item name="android:background">@drawable/card_rounded</item>
+        <item name="android:clipToOutline">true</item>
+        <item name="android:paddingTop">18dp</item>
+        <item name="android:paddingBottom">18dp</item>
+        <item name="android:paddingLeft">18dp</item>
+        <item name="android:paddingRight">14dp</item>
+    </style>
+
+    <style name="AppWindowAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
     </style>
 
     <style name="CardHeader">

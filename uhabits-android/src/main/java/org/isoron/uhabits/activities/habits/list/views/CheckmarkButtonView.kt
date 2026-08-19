@@ -40,6 +40,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.utils.drawNotesIndicator
 import org.isoron.uhabits.utils.getFontAwesome
+import org.isoron.uhabits.utils.playCheckBounce
 import org.isoron.uhabits.utils.sp
 import org.isoron.uhabits.utils.sres
 import org.isoron.uhabits.utils.toMeasureSpec
@@ -96,6 +97,7 @@ class CheckmarkButtonView(
         )
         onToggle(value, notes)
         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        playCheckBounce()
         invalidate()
     }
 
