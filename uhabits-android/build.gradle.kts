@@ -157,4 +157,5 @@ dependencies {
 
     testImplementation(libs.kotlin.inject.runtime)
     testImplementation(libs.junit.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
