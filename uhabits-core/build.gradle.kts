@@ -24,7 +24,9 @@ plugins {
 }
 
 kotlin {
-    jvm()
+    // Sources live in src/jvmMain/java (Kotlin files). withJava() registers
+    // that directory. Do not remove until those files move to src/jvmMain/kotlin.
+    jvm().withJava()
     jvmToolchain(17)
 
     js(IR) {
